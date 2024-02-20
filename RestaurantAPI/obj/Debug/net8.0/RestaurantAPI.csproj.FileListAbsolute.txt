@@ -23,3 +23,4 @@ C:\Users\Wiktor\Desktop\Kodzenie\Udemy ASP.NET Core WebAPI\RestaurantAPI\obj\Deb
 C:\Users\Wiktor\Desktop\Kodzenie\Udemy ASP.NET Core WebAPI\RestaurantAPI\obj\Debug\net8.0\RestaurantAPI.pdb
 C:\Users\Wiktor\Desktop\Kodzenie\Udemy ASP.NET Core WebAPI\RestaurantAPI\obj\Debug\net8.0\RestaurantAPI.genruntimeconfig.cache
 C:\Users\Wiktor\Desktop\Kodzenie\Udemy ASP.NET Core WebAPI\RestaurantAPI\obj\Debug\net8.0\ref\RestaurantAPI.dll
+C:\Users\Wiktor\Desktop\Kodzenie\Udemy ASP.NET Core WebAPI\RestaurantAPI\obj\Debug\net8.0\RestaurantAPI.sourcelink.json
