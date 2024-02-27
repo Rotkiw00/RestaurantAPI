@@ -4,7 +4,6 @@ obj/
 [Dd]ebug/
 [Rr]elease/
 [Mm]igrations/
-ref/
 
 .vscode/
 .vscode-test/
@@ -13,6 +12,13 @@ ref/
 *.userprefs.lock
 *.suo
 .DS_Store
+*.csproj
+*.cache
+*.deps.json
+*.runtimeconfig.json
+*.txt
+*.assets.json
+*.nuget.cache
 
 .idea/
 *.sln.iml
@@ -28,4 +34,4 @@ packages/
 *.dat
 *.txt
 *.props
-*.csproj.user
+

@@ -15,10 +15,25 @@ namespace RestaurantAPI.Controllers
 			_service = service;
 		}
 
-		[HttpGet]
-		public IEnumerable<WeatherForecast> Get()
+		[HttpPost("generate")]
+		public ActionResult<IEnumerable<WeatherForecast>> GeneratePost([FromQuery]int recordsCount, [FromBody]TemperatureRequestModel requestModel)
 		{
-			return _service.Get();
+			if (recordsCount <= 0 || requestModel.MaximumTempC < requestModel.MinimumTempC)
+			{
+				return BadRequest("Error: n should be grater than 0 and maximum temp should be grater than minimum");
+			}
+			else
+			{
+				var results = _service.Get(recordsCount, requestModel.MinimumTempC, requestModel.MaximumTempC);
+				return Ok(results);
+			}
 		}
 	}
+
+	public class TemperatureRequestModel
+	{
+        public int MinimumTempC { get; set; }
+        public int MaximumTempC { get; set; }
+    }
 }
+ 
