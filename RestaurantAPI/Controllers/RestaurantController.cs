@@ -1,59 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RestaurantAPI.Models;
-using AutoMapper;
+using RestaurantAPI.Services;
 
 namespace RestaurantAPI.Controllers
 {
 	[Route("api/restaurant")]
 	public class RestaurantController : ControllerBase
 	{
-		private readonly RestaurantDbContext _dbContext;
-		private readonly IMapper _mapper;
+		private readonly IRestaurantService _restaurantService;
 
-		public RestaurantController(RestaurantDbContext dbContext, IMapper mapper)
+		public RestaurantController(IRestaurantService restaurantService)
         {
-			_dbContext = dbContext;
-			_mapper = mapper;
+			_restaurantService = restaurantService;
 		}
 
 		[HttpGet]
 		public ActionResult<IEnumerable<Restaurant>> GetAll()
 		{
-			var restaurants = _dbContext
-				.Restaurants
-				.Include(r => r.Address)
-				.Include(r => r.Dishes)
-				.ToList();
-
-			/* Wrong way for mapping object to its DTO
-			 better to use AutoMapper
-
-			var restaurantsDto = restaurants.Select(r => new RestaurantDto()
-			{
-				Name = r.Name,
-				Description = r.Description,
-				Category = r.Category,
-				HasDelivery = r.HasDelivery,
-			});
-			
-			 */
-
-			var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
+			var restaurantsDto = _restaurantService.GetAll();
 			return Ok(restaurantsDto);
 		}
 
 		[HttpGet("{id}")]
 		public ActionResult<Restaurant> Get([FromRoute]int id)
 		{
-			var restaurant = _dbContext
-				.Restaurants
-				.FirstOrDefault(r => r.Id == id);
+			var restaurantDto = _restaurantService.GetById(id);
 
-			if (restaurant is null) return NotFound();
+			if (restaurantDto is null) return NotFound();
 
-			var restaurantDto = _mapper.Map<RestaurantDto>(restaurant); // <T> is the generic type which is the destination type to return
 			return Ok(restaurantDto);
+		}
+
+		[HttpPost]
+		public ActionResult CreateRestaurant([FromBody]CreateRestaurantDto restaurantDto)
+		{
+			if (!ModelState.IsValid) return BadRequest(ModelState);
+
+			int id = _restaurantService.Create(restaurantDto);
+
+			return Created($"api/restaurant/{id}", null);
 		}
     }
 }
