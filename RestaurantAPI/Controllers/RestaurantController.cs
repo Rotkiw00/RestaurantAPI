@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RestaurantAPI.Models;
 using RestaurantAPI.Services;
 
 namespace RestaurantAPI.Controllers
@@ -38,6 +39,18 @@ namespace RestaurantAPI.Controllers
 			int id = _restaurantService.Create(restaurantDto);
 
 			return Created($"api/restaurant/{id}", null);
+		}
+
+		[HttpPut("{id}")]
+		public ActionResult UpdateById([FromBody]UpdateRestaurantDto updateRestaurantDto, [FromRoute]int id)
+		{
+			if (!ModelState.IsValid) return BadRequest();
+
+			bool isUpdated =  _restaurantService.Update(updateRestaurantDto, id);
+
+			if (!isUpdated) return NotFound();
+
+			return Ok();
 		}
 
 		[HttpDelete("{id}")]
