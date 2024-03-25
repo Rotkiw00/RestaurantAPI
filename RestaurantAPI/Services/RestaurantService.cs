@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using RestaurantAPI.Exceptions;
 using RestaurantAPI.Models;
 
 namespace RestaurantAPI.Services
@@ -8,11 +9,13 @@ namespace RestaurantAPI.Services
 	{
 		private readonly RestaurantDbContext _dbContext;
 		private readonly IMapper _mapper;
+		private readonly ILogger<RestaurantService> _logger;
 
-		public RestaurantService(RestaurantDbContext dbContext, IMapper mapper)
+		public RestaurantService(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantService> logger)
 		{
 			_dbContext = dbContext;
 			_mapper = mapper;
+			_logger = logger;
 		}
 
 		public IEnumerable<RestaurantDto> GetAll()
@@ -35,7 +38,7 @@ namespace RestaurantAPI.Services
 				.Include(r => r.Dishes)
 				.FirstOrDefault(r => r.Id == id);
 
-			if (restaurant is null) return null;
+			if (restaurant is null) throw new NotFoundException("Restaurant not found");
 
 			var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
 			return restaurantDto;
@@ -51,35 +54,31 @@ namespace RestaurantAPI.Services
 			return restaurant.Id;
 		}
 
-		public bool Update(UpdateRestaurantDto updateRestaurantDto, int id)
+		public void Update(UpdateRestaurantDto updateRestaurantDto, int id)
 		{
 			var restaurant = _dbContext
 				.Restaurants
 				.FirstOrDefault(r => r.Id == id);
 
-			if (restaurant is null) return false;
+			if (restaurant is null) throw new NotFoundException("Restaurant not found");
 
 			restaurant.Name = updateRestaurantDto.Name;
 			restaurant.Description = updateRestaurantDto.Description;
 			restaurant.HasDelivery = updateRestaurantDto.HasDelivery;
 
 			_dbContext.SaveChanges();
-
-			return true;
 		}
 
-		public bool Delete(int id)
+		public void Delete(int id)
 		{
 			var restaurant = _dbContext
 				.Restaurants
 				.FirstOrDefault(r => r.Id == id);
 
-			if (restaurant is null) return false;
+			if (restaurant is null) throw new NotFoundException("Restaurant not found");
 
 			_dbContext.Restaurants.Remove(restaurant);
 			_dbContext.SaveChanges();
-
-			return true;
 		}		
 	}
 }
