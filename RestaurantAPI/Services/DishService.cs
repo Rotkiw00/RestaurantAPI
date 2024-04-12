@@ -18,9 +18,7 @@ namespace RestaurantAPI.Services
 
         public int Create(int restaurantId, CreateDishDto createDishDto)
 		{
-			var restaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == restaurantId);
-
-			if (restaurant is null) throw new NotFoundException("Restaurant not found");
+			var restaurant = GetRestaurantFromDbById(restaurantId);
 
 			var dishEntity = _mapper.Map<Dish>(createDishDto);
 
@@ -34,12 +32,7 @@ namespace RestaurantAPI.Services
 
 		public List<DishDto> GetAll(int restaurantId)
 		{
-			var restaurant = _dbContext
-				.Restaurants
-				.Include(r => r.Dishes)
-				.FirstOrDefault(r => r.Id == restaurantId);
-
-			if (restaurant is null) throw new NotFoundException("Restaurant not found");
+			var restaurant = GetRestaurantFromDbById(restaurantId);
 
 			var dishDtos = _mapper.Map<List<DishDto>>(restaurant.Dishes);
 
@@ -48,9 +41,7 @@ namespace RestaurantAPI.Services
 
 		public DishDto GetById(int restaurantId, int dishId)
 		{
-			var restaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == restaurantId);
-
-			if (restaurant is null) throw new NotFoundException("Restaurant not found");
+			var restaurant = GetRestaurantFromDbById(restaurantId);
 
 			var dish = _dbContext.Dishes.FirstOrDefault(d => d.Id == dishId);
 
@@ -59,6 +50,24 @@ namespace RestaurantAPI.Services
 			var dishDto = _mapper.Map<DishDto>(dish);
 
 			return dishDto;
+		}
+
+		public void RemoveAll(int restaurantId)
+		{
+			var restaurant = GetRestaurantFromDbById(restaurantId);
+
+			_dbContext.RemoveRange(restaurant.Dishes);
+			_dbContext.SaveChanges();
+		}
+
+		private Restaurant GetRestaurantFromDbById(int restaurantId)
+		{
+			var restaurant = _dbContext
+				.Restaurants
+				.Include(r => r.Dishes)
+				.FirstOrDefault(r => r.Id == restaurantId) ?? throw new NotFoundException("Restaurant not found");
+
+			return restaurant;
 		}
 	}
 }
