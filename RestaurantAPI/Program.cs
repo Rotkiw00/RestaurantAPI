@@ -1,8 +1,10 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
+using RestaurantAPI.Authorization;
 using RestaurantAPI.Middleware;
 using RestaurantAPI.Models;
 using RestaurantAPI.Models.Validators;
@@ -36,8 +38,15 @@ builder.Services.AddAuthentication(opt =>
 	};
 });
 
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality"))
+	.AddPolicy("HasAtLeast20", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
+
+builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 builder.Services.AddControllers();
-builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+builder.Services.AddFluentValidationAutoValidation()
+				.AddFluentValidationClientsideAdapters();
 
 builder.Services.AddDbContext<RestaurantDbContext>();
 
@@ -54,6 +63,8 @@ builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSwaggerGen();
 
@@ -65,7 +76,9 @@ seeder.Seed();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestTimeMiddleware>();
+
 app.UseAuthentication();
+
 app.UseHttpsRedirection();
 
 app.UseSwagger();
@@ -73,6 +86,8 @@ app.UseSwaggerUI(s =>
 {
 	s.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API");
 });
+
+app.UseAuthorization();
 
 app.MapControllers();
 
