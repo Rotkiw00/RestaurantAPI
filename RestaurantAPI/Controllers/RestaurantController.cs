@@ -20,9 +20,9 @@ namespace RestaurantAPI.Controllers
 
 		[HttpGet]
 		[AllowAnonymous]
-		public ActionResult<IEnumerable<Restaurant>> GetAll()
-		{
-			var restaurantsDto = _restaurantService.GetAll();
+		public ActionResult<IEnumerable<Restaurant>> GetAll([FromQuery] RestaurantGetAllQuery query)
+		{ 
+			var restaurantsDto = _restaurantService.GetAll(query);
 			return Ok(restaurantsDto);
 		}
 
@@ -37,7 +37,7 @@ namespace RestaurantAPI.Controllers
 
 		[HttpPost]
 		[Authorize(Roles = "Admin,Manager")]
-		public ActionResult Create([FromBody]CreateRestaurantDto restaurantDto)
+        public ActionResult Create([FromBody] CreateRestaurantDto restaurantDto)
 		{
 			int userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
